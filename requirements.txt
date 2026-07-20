@@ -1,0 +1,10 @@
+# 核心运行依赖（worker.exe 打包必需）
+pymupdf>=1.24
+fonttools>=4.50
+openpyxl>=3.1
+
+# 打包工具
+pyinstaller>=6.0
+
+# 可选：仅命令行版 src/extract_cmb_statement.py 需要
+pandas>=2.0
