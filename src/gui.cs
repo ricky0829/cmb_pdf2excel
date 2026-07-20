@@ -15,7 +15,7 @@ using System.Windows.Forms;
 [assembly: AssemblyDescription("招商银行交易流水 / 信用卡账单提取工具")]
 [assembly: AssemblyProduct("cmb_pdf2excel")]
 [assembly: AssemblyCompany("ricky0829")]
-[assembly: AssemblyCopyright("MIT License")]
+[assembly: AssemblyCopyright("Copyright © 2026 cmb_pdf2excel contributors (GPL v3)")]
 [assembly: AssemblyVersion("1.1.0.0")]
 [assembly: AssemblyFileVersion("1.1.0.0")]
 
