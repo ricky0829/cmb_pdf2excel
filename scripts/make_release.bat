@@ -9,7 +9,7 @@ setlocal
 cd /d "%~dp0\.."
 
 set VERSION=%~1
-if "%VERSION%"=="" set VERSION=v1.0.0
+if "%VERSION%"=="" set VERSION=v1.1.0
 
 echo === [1/3] Building worker.exe ===
 call scripts\build_worker.bat || exit /b 1
