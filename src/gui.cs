@@ -1,5 +1,5 @@
-// 招商银行交易流水提取工具 - C# WinForms 原生窗口（单文件版）
-// 编译: csc /target:winexe /out:cmb_pdf2excel.exe /resource:worker.exe gui.cs
+// cmb_pdf2excel - 招商银行交易流水/信用卡账单提取工具 - C# WinForms 原生窗口（单文件版）
+// 编译: csc /target:winexe /out:cmb_pdf2excel.exe /win32icon:app.ico /resource:worker.exe gui.cs
 // worker.exe 作为内嵌资源打包进本程序，运行时自动释放到临时目录后调用
 
 using System;
@@ -10,16 +10,29 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Windows.Forms;
 
+// ---- 程序集信息（体现在 exe 属性与「关于」对话框）----
+[assembly: AssemblyTitle("cmb_pdf2excel")]
+[assembly: AssemblyDescription("招商银行交易流水 / 信用卡账单提取工具")]
+[assembly: AssemblyProduct("cmb_pdf2excel")]
+[assembly: AssemblyCompany("ricky0829")]
+[assembly: AssemblyCopyright("MIT License")]
+[assembly: AssemblyVersion("1.1.0.0")]
+[assembly: AssemblyFileVersion("1.1.0.0")]
+
 public class MainForm : Form
 {
+    private const string AppVersion = "1.1.0";
+    private const string RepoUrl = "https://github.com/ricky0829/cmb_pdf2excel";
+
     private TextBox txtPdf, txtXlsx, txtLog;
-    private Button btnBrowsePdf, btnBrowseXlsx, btnRun, btnOpen, btnClear;
+    private Button btnBrowsePdf, btnBrowseXlsx, btnRun, btnOpen, btnClear, btnAbout;
     private Label lblStatus;
     private Process worker;
 
     public MainForm()
     {
-        Text = "招商银行交易流水提取工具";
+        Text = "招商银行交易流水提取工具  v" + AppVersion;
+        try { Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
         Size = new Size(700, 500);
         MinimumSize = new Size(580, 420);
         StartPosition = FormStartPosition.CenterScreen;
@@ -75,8 +88,10 @@ public class MainForm : Form
         btnOpen.Click += (s, e) => OpenDir();
         btnClear = new Button { Text = "清空日志", Location = new Point(pad + 210, y), Width = 80, Height = 32 };
         btnClear.Click += (s, e) => { txtLog.Clear(); };
+        btnAbout = new Button { Text = "关于", Location = new Point(cw - pad - 60, y), Width = 60, Height = 32, Anchor = AnchorStyles.Top | AnchorStyles.Right };
+        btnAbout.Click += (s, e) => ShowAbout();
         lblStatus = new Label { Text = "就绪 — 请选择 PDF 文件", Location = new Point(pad + 310, y + 8), AutoSize = true, ForeColor = Color.Gray };
-        Controls.AddRange(new Control[] { btnRun, btnOpen, btnClear, lblStatus });
+        Controls.AddRange(new Control[] { btnRun, btnOpen, btnClear, btnAbout, lblStatus });
         y += 42;
 
         // ---- 日志 ----
@@ -237,6 +252,58 @@ public class MainForm : Form
         string dir = btnOpen.Tag as string;
         if (!string.IsNullOrEmpty(dir) && Directory.Exists(dir))
             Process.Start("explorer.exe", dir);
+    }
+
+    // ---------- 关于对话框 ----------
+
+    private void ShowAbout()
+    {
+        using (var f = new Form())
+        {
+            f.Text = "关于";
+            f.FormBorderStyle = FormBorderStyle.FixedDialog;
+            f.MaximizeBox = false;
+            f.MinimizeBox = false;
+            f.ShowInTaskbar = false;
+            f.StartPosition = FormStartPosition.CenterParent;
+            f.ClientSize = new Size(420, 268);
+            f.Font = new Font("Microsoft YaHei UI", 9f);
+
+            int x = 24, y = 18;
+            var lblName = new Label
+            {
+                Text = "cmb_pdf2excel",
+                Font = new Font("Microsoft YaHei UI", 18f, FontStyle.Bold),
+                Location = new Point(x, y), AutoSize = true
+            };
+            y += 40;
+            var lblVer = new Label
+            {
+                Text = "版本 " + AppVersion + "（交易流水 + 信用卡账单）",
+                Location = new Point(x, y), AutoSize = true, ForeColor = Color.Gray
+            };
+            y += 28;
+            var lblDesc = new Label
+            {
+                Text = "从招商银行 PDF 中提取结构化交易记录，一键导出 Excel。\n" +
+                       "内置 PDF 字体 CMap 逆向解析引擎，正确还原中文。\n" +
+                       "纯离线运行，不联网，保障数据安全。",
+                Location = new Point(x, y), Size = new Size(372, 66)
+            };
+            y += 74;
+            var lblRepo = new Label { Text = "开源地址：", Location = new Point(x, y + 3), AutoSize = true };
+            var link = new LinkLabel { Text = RepoUrl, Location = new Point(x + 72, y), AutoSize = true };
+            link.Click += (s, e) => { try { Process.Start(RepoUrl); } catch { } };
+            y += 38;
+            var btnOk = new Button
+            {
+                Text = "确定", DialogResult = DialogResult.OK,
+                Location = new Point(320, y), Width = 76, Height = 30
+            };
+            f.Controls.AddRange(new Control[] { lblName, lblVer, lblDesc, lblRepo, link, btnOk });
+            f.AcceptButton = btnOk;
+            f.ShowDialog(this);
+        }
     }
 
     [STAThread]

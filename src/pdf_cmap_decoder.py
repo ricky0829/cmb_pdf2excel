@@ -646,6 +646,17 @@ def extract_text(pdf_path, ref_font_path=None, verbose=False):
 
     logger.info(f"Found {len(all_fonts)} unique fonts")
 
+    # ---- 无内嵌子集字体时，回退到 PyMuPDF 原生提取 ----
+    # 信用卡对账单等使用标准字体的 PDF 无需 CMap 逆向，原生提取即可得到正确文本。
+    if len(all_fonts) == 0:
+        logger.info("No embedded subset fonts; falling back to native extraction")
+        all_pages = []
+        for page in doc:
+            all_pages.append(page.get_text("text").splitlines())
+        doc.close()
+        logger.info("Extraction complete")
+        return all_pages
+
     # ---- 建立字形匹配映射 ----
     if ref_font_path is None:
         # 自动检测参考字体
